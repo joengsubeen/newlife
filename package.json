@@ -1,0 +1,24 @@
+{
+  "name": "newlife",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joengsubeen/newlife.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/joengsubeen/newlife/issues"
+  },
+  "homepage": "https://github.com/joengsubeen/newlife#readme",
+  "dependencies": {
+    "exceljs": "^4.4.0"
+  }
+}

@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>산안법·중처법 유사 판례 검색기</title>
+  <title>출장 정산 변환기</title>
   <style>
     :root {
-      --bg: #f2f5f9;
+      --bg: #f3f6fb;
       --card: #ffffff;
-      --line: #d6deea;
-      --text: #1d2430;
-      --muted: #5b6679;
-      --primary: #0b4da2;
-      --accent: #e9f2ff;
-      --ok: #1f7a48;
+      --line: #d8e0ec;
+      --text: #1f2633;
+      --muted: #5d687b;
+      --primary: #0a4ea8;
+      --primary-soft: #e9f1ff;
+      --ok: #0f7a42;
+      --warn: #915f00;
     }
 
     * { box-sizing: border-box; }
@@ -22,12 +23,12 @@
       margin: 0;
       font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
       color: var(--text);
-      background: radial-gradient(circle at 0 0, #e5efff 0, var(--bg) 38%), var(--bg);
+      background: radial-gradient(circle at 0 0, #e8f0ff 0, var(--bg) 42%), var(--bg);
     }
 
     .wrap {
-      max-width: 1100px;
-      margin: 28px auto;
+      max-width: 920px;
+      margin: 32px auto;
       padding: 0 14px 24px;
     }
 
@@ -35,8 +36,8 @@
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 14px;
+      box-shadow: 0 8px 18px rgba(11, 46, 94, 0.06);
       padding: 16px;
-      box-shadow: 0 8px 18px rgba(13, 43, 91, 0.06);
       margin-bottom: 14px;
     }
 
@@ -51,40 +52,31 @@
       font-size: 0.95rem;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 220px 220px;
-      gap: 10px;
-      align-items: end;
+    .drop {
+      margin-top: 10px;
+      border: 2px dashed #b8c8e2;
+      background: #f9fbff;
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+      transition: all .15s ease;
     }
 
-    label {
-      display: block;
-      font-size: 0.9rem;
-      color: var(--muted);
-      margin-bottom: 6px;
+    .drop.drag {
+      border-color: var(--primary);
+      background: var(--primary-soft);
     }
 
-    textarea, input, select {
+    input[type="file"] {
       width: 100%;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 10px;
-      font-size: 0.95rem;
-      background: #fff;
-    }
-
-    textarea {
-      min-height: 94px;
-      resize: vertical;
-      line-height: 1.45;
+      margin-top: 10px;
     }
 
     .actions {
       display: flex;
       gap: 8px;
-      margin-top: 10px;
       flex-wrap: wrap;
+      margin-top: 12px;
     }
 
     button {
@@ -92,314 +84,371 @@
       background: var(--primary);
       color: #fff;
       border-radius: 10px;
-      padding: 9px 13px;
+      padding: 9px 14px;
+      font-size: 0.94rem;
       cursor: pointer;
-      font-size: 0.92rem;
     }
 
-    button.ghost {
+    button.secondary {
       background: #fff;
       color: var(--primary);
     }
 
-    .samples {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
     }
 
-    .sample-btn {
+    .log {
+      padding: 10px;
+      border-radius: 10px;
       border: 1px solid var(--line);
-      background: #f7faff;
-      color: #2c4e87;
-      font-size: 0.86rem;
-      padding: 7px 10px;
-      border-radius: 999px;
-    }
-
-    .meta {
-      display: flex;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-      font-size: 0.88rem;
-      color: var(--muted);
-    }
-
-    .result {
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 12px;
-      margin-top: 10px;
       background: #fcfdff;
-    }
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 6px;
-      align-items: center;
-    }
-
-    .title {
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    .score {
-      font-size: 0.86rem;
-      background: var(--accent);
-      color: var(--primary);
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid #cce0ff;
-      font-weight: 700;
-    }
-
-    .chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 7px;
-    }
-
-    .chip {
-      font-size: 0.8rem;
-      border-radius: 999px;
-      padding: 3px 8px;
-      border: 1px solid var(--line);
-      color: #45536b;
-      background: #f8fafd;
-    }
-
-    .matched {
-      border-color: #9fd3b2;
-      color: var(--ok);
-      background: #edfbf2;
-    }
-
-    .small {
-      font-size: 0.86rem;
+      font-size: 0.9rem;
       color: var(--muted);
-      margin-top: 5px;
+      white-space: pre-wrap;
+      min-height: 42px;
     }
 
-    a {
-      color: var(--primary);
-      text-decoration: none;
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+
+    ul.rules {
+      margin: 8px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 0.9rem;
     }
 
-    a:hover { text-decoration: underline; }
-
-    @media (max-width: 920px) {
-      .grid { grid-template-columns: 1fr; }
+    @media (max-width: 640px) {
+      h1 { font-size: 1.25rem; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
+  <main class="wrap">
     <section class="card">
-      <h1>산업안전보건법·중대재해처벌법 유사 판례 검색기</h1>
-      <p class="sub">사실관계/쟁점을 입력하면 저장된 판례와 유사도를 계산해 보여줍니다.</p>
-    </section>
-
-    <section class="card">
-      <div class="grid">
-        <div>
-          <label for="query">내 사건 설명</label>
-          <textarea id="query" placeholder="예: 하청 근로자가 도급인 사업장에서 설비 청소 중 추락 사망. 안전난간, 작업절차서, 위험성평가 미흡."></textarea>
-        </div>
-        <div>
-          <label for="lawFilter">법령 필터</label>
-          <select id="lawFilter">
-            <option value="all">전체</option>
-            <option value="both">중처법+산안법</option>
-            <option value="sapa">중대재해처벌법 중심</option>
-            <option value="osha">산업안전보건법 중심</option>
-          </select>
-        </div>
-        <div>
-          <label for="minYear">최소 선고연도</label>
-          <input id="minYear" type="number" value="2023" min="2000" max="2030" step="1" />
-        </div>
+      <h1>출장 정산 파일 자동 변환</h1>
+      <p class="sub">같은 형식의 출장이력 파일을 올리면, 바로 정산 양식 파일(.xlsx)로 다운로드합니다.</p>
+      <div class="drop" id="dropZone">
+        <div>여기에 엑셀 파일을 끌어놓거나 아래에서 선택하세요.</div>
+        <input id="fileInput" type="file" accept=".xlsx,.xls" />
       </div>
       <div class="actions">
-        <button id="searchBtn" type="button">유사 판례 검색</button>
-        <button id="resetBtn" class="ghost" type="button">초기화</button>
+        <button id="convertBtn" disabled>정산 파일 만들기</button>
+        <button id="clearBtn" class="secondary">초기화</button>
       </div>
-      <div class="samples">
-        <button class="sample-btn" data-sample="도급인 사업장 하청근로자 작업 중 사망, 안전보건조치 미흡">예시: 도급인 의무</button>
-        <button class="sample-btn" data-sample="상시근로자 50명 미만 사업장인지가 쟁점인 중대재해 사건">예시: 50명 미만</button>
-        <button class="sample-btn" data-sample="폭발 위험 물질 취급 공정에서 안전절차 위반으로 사망사고">예시: 폭발사고</button>
-      </div>
+      <div class="log" id="log">파일을 선택해 주세요.</div>
     </section>
 
     <section class="card">
-      <div class="meta">
-        <div id="metaCount">저장 판례: 0건</div>
-        <div id="metaDate">최종 정리일: -</div>
-      </div>
-      <div id="results"></div>
+      <p class="sub">적용 규칙</p>
+      <ul class="rules">
+        <li>출장일수: 종료일 - 시작일 + 1</li>
+        <li>출발지: 세종 / 도착지: 출장지</li>
+        <li>공무용차량여부가 "이용"이면 교통수단은 "관용차량", 일비단가 12,500</li>
+        <li>그 외 일비단가 25,000, 식비단가 25,000</li>
+        <li>청구액 = 교통요금 + 식비금액 + 일비금액 + 숙박비</li>
+        <li>출장자별 소계, 전체 합계 자동 생성 (청구액/지급액)</li>
+      </ul>
     </section>
-  </div>
+  </main>
 
-  <script src="data/cases-data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
-    const state = {
-      cases: (window.PRECEDENT_DATA && window.PRECEDENT_DATA.cases) || []
-    };
+    const fileInput = document.getElementById('fileInput');
+    const convertBtn = document.getElementById('convertBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const logEl = document.getElementById('log');
+    const dropZone = document.getElementById('dropZone');
 
-    const queryEl = document.getElementById('query');
-    const lawFilterEl = document.getElementById('lawFilter');
-    const minYearEl = document.getElementById('minYear');
-    const searchBtn = document.getElementById('searchBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const resultsEl = document.getElementById('results');
-    const metaCountEl = document.getElementById('metaCount');
-    const metaDateEl = document.getElementById('metaDate');
+    let selectedFile = null;
 
-    function normalize(text) {
-      return (text || '')
-        .toLowerCase()
-        .replace(/[^0-9a-zA-Z가-힣\s]/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim();
+    function setLog(message, mode = 'normal') {
+      logEl.textContent = message;
+      logEl.classList.remove('ok', 'warn');
+      if (mode === 'ok') logEl.classList.add('ok');
+      if (mode === 'warn') logEl.classList.add('warn');
     }
 
-    function tokenize(text) {
-      const terms = normalize(text).split(' ').filter(t => t.length >= 2);
-      return [...new Set(terms)];
+    function pad(n) {
+      return String(n).padStart(2, '0');
     }
 
-    function textContains(fieldText, term) {
-      return normalize(fieldText).includes(term);
+    function formatDate(d) {
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
     }
 
-    function scoreCase(c, queryTerms) {
-      let score = 0;
-      const matched = new Set();
-      const title = c.title || '';
-      const issue = c.issue || '';
-      const holding = c.holding_summary || '';
-      const laws = (c.laws || []).join(' ');
-      const keywords = (c.keywords || []).join(' ');
+    function parseDate(v) {
+      if (v == null || v === '') return null;
 
-      queryTerms.forEach(term => {
-        let added = 0;
+      if (v instanceof Date && !Number.isNaN(v.getTime())) {
+        return new Date(v.getFullYear(), v.getMonth(), v.getDate());
+      }
 
-        if (textContains(title, term)) added += 4;
-        if (textContains(keywords, term)) added += 3;
-        if (textContains(issue, term)) added += 2;
-        if (textContains(holding, term)) added += 2;
-        if (textContains(laws, term)) added += 2;
+      if (typeof v === 'number') {
+        const parsed = XLSX.SSF.parse_date_code(v);
+        if (!parsed) return null;
+        return new Date(parsed.y, parsed.m - 1, parsed.d);
+      }
 
-        if (added > 0) {
-          matched.add(term);
-          score += added;
+      const text = String(v).trim();
+      const compact = text.replace(/[^0-9]/g, '');
+      if (/^\d{8}$/.test(compact)) {
+        const y = Number(compact.slice(0, 4));
+        const m = Number(compact.slice(4, 6));
+        const d = Number(compact.slice(6, 8));
+        const dt = new Date(y, m - 1, d);
+        if (!Number.isNaN(dt.getTime())) return dt;
+      }
+
+      const normalized = text.replace(/\./g, '-').replace(/\//g, '-');
+      const dt = new Date(normalized);
+      if (!Number.isNaN(dt.getTime())) {
+        return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+      }
+
+      return null;
+    }
+
+    function daysInclusive(start, end) {
+      return Math.max(1, Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1);
+    }
+
+    function findHeaderRow(aoa, required) {
+      for (let r = 0; r < Math.min(aoa.length, 10); r += 1) {
+        const row = (aoa[r] || []).map((x) => String(x || '').trim());
+        const ok = required.every((h) => row.includes(h));
+        if (ok) return r;
+      }
+      return -1;
+    }
+
+    function buildHeaderMap(row) {
+      const map = new Map();
+      (row || []).forEach((cell, idx) => {
+        const key = String(cell || '').trim();
+        if (key) map.set(key, idx);
+      });
+      return map;
+    }
+
+    function toRecords(aoa) {
+      const required = ['시작일', '종료일', '출장지', '출장자', '공무용차량여부'];
+      const headerRowIndex = findHeaderRow(aoa, required);
+
+      let dataStart = 0;
+      let idxStart = 0;
+      let idxEnd = 1;
+      let idxDest = 2;
+      let idxTraveler = 3;
+      let idxVehicle = 6;
+
+      if (headerRowIndex >= 0) {
+        const map = buildHeaderMap(aoa[headerRowIndex]);
+        idxStart = map.get('시작일');
+        idxEnd = map.get('종료일');
+        idxDest = map.get('출장지');
+        idxTraveler = map.get('출장자');
+        idxVehicle = map.get('공무용차량여부');
+        dataStart = headerRowIndex + 1;
+      }
+
+      const records = [];
+
+      for (let r = dataStart; r < aoa.length; r += 1) {
+        const row = aoa[r] || [];
+        const traveler = String(row[idxTraveler] || '').trim();
+        if (!traveler) continue;
+
+        const startDate = parseDate(row[idxStart]);
+        let endDate = parseDate(row[idxEnd]);
+        if (!startDate) continue;
+        if (!endDate) endDate = startDate;
+
+        let s = startDate;
+        let e = endDate;
+        if (e < s) {
+          const t = s;
+          s = e;
+          e = t;
         }
-      });
 
-      const normalized = queryTerms.length ? Math.round((score / (queryTerms.length * 7)) * 100) : 0;
-      return { score: normalized, matched: [...matched] };
-    }
+        const tripDays = daysInclusive(s, e);
+        const vehicle = String(row[idxVehicle] || '').trim();
+        const isGovCar = vehicle === '이용';
+        const mealUnit = 25000;
+        const dailyUnit = isGovCar ? 12500 : 25000;
 
-    function byFilter(c) {
-      const filter = lawFilterEl.value;
-      const minYear = Number(minYearEl.value) || 2000;
-      const year = Number((c.decision_date || '').slice(0, 4)) || 0;
-
-      if (year < minYear) return false;
-      if (filter === 'all') return true;
-      if (filter === 'both') return c.law_category === 'both';
-      return c.law_category === filter || c.law_category === 'both';
-    }
-
-    function render(results, queryTerms) {
-      if (!results.length) {
-        resultsEl.innerHTML = '<div class="small">조건에 맞는 판례가 없습니다. 연도를 낮추거나 검색어를 넓혀보세요.</div>';
-        return;
+        records.push({
+          traveler,
+          tripDate: s,
+          origin: '세종',
+          destination: String(row[idxDest] || '').trim(),
+          transport: isGovCar ? '관용차량' : '',
+          transportFare: 0,
+          tripDays,
+          mealUnit,
+          mealAmount: mealUnit * tripDays,
+          dailyUnit,
+          dailyAmount: dailyUnit * tripDays,
+          lodgingNights: 0,
+          lodgingCost: 0,
+        });
       }
 
-      resultsEl.innerHTML = results.map(r => {
-        const c = r.case;
-        const chips = (c.keywords || []).map(k => {
-          const hit = queryTerms.some(t => normalize(k).includes(t));
-          return `<span class="chip ${hit ? 'matched' : ''}">${k}</span>`;
-        }).join('');
+      records.sort((a, b) => {
+        if (a.traveler !== b.traveler) return a.traveler.localeCompare(b.traveler, 'ko');
+        return a.tripDate - b.tripDate;
+      });
 
-        const laws = (c.laws || []).join(', ');
-
-        return `
-          <article class="result">
-            <div class="row">
-              <div class="title">${c.title}</div>
-              <div class="score">유사도 ${r.score}%</div>
-            </div>
-            <div class="small">${c.court} | ${c.decision_date} | ${c.case_number} | ${laws}</div>
-            <div class="small"><strong>쟁점:</strong> ${c.issue}</div>
-            <div class="small"><strong>요지:</strong> ${c.holding_summary}</div>
-            <div class="chips">${chips}</div>
-            <div class="small"><a href="${c.source_url}" target="_blank" rel="noopener noreferrer">원문/공식 출처</a></div>
-          </article>
-        `;
-      }).join('');
+      return records;
     }
 
-    function search() {
-      const queryTerms = tokenize(queryEl.value);
-      const filtered = state.cases.filter(byFilter);
+    function recordsToSheet(records) {
+      const headers = [
+        '출장자', '출장일', '출발지', '도착지', '교통수단', '교통요금', '출장일수',
+        '식비단가', '식비금액', '일비단가', '일비금액', '숙박일수', '숙박비', '청구액', '지급액'
+      ];
 
-      if (!queryTerms.length) {
-        const plain = filtered
-          .map(c => ({ case: c, score: 0, matched: [] }))
-          .sort((a, b) => (b.case.decision_date || '').localeCompare(a.case.decision_date || ''));
-        render(plain, []);
-        return;
+      const aoa = [headers];
+      const subtotalRows = [];
+
+      let i = 0;
+      while (i < records.length) {
+        const traveler = records[i].traveler;
+        const startRowNum = aoa.length + 1;
+
+        while (i < records.length && records[i].traveler === traveler) {
+          const item = records[i];
+          const rowNum = aoa.length + 1;
+          aoa.push([
+            item.traveler,
+            formatDate(item.tripDate),
+            item.origin,
+            item.destination,
+            item.transport,
+            item.transportFare,
+            item.tripDays,
+            item.mealUnit,
+            item.mealAmount,
+            item.dailyUnit,
+            item.dailyAmount,
+            item.lodgingNights,
+            item.lodgingCost,
+            { f: `F${rowNum}+I${rowNum}+K${rowNum}+M${rowNum}` },
+            { f: `N${rowNum}` },
+          ]);
+          i += 1;
+        }
+
+        const endRowNum = aoa.length;
+        const subRowNum = aoa.length + 1;
+        aoa.push([
+          `${traveler} 소계`, '', '', '', '', '', '', '', '', '', '', '', '',
+          { f: `SUM(N${startRowNum}:N${endRowNum})` },
+          { f: `SUM(O${startRowNum}:O${endRowNum})` },
+        ]);
+        subtotalRows.push(subRowNum);
       }
 
-      const scored = filtered
-        .map(c => {
-          const s = scoreCase(c, queryTerms);
-          return { case: c, score: s.score, matched: s.matched };
-        })
-        .filter(x => x.score > 0)
-        .sort((a, b) => b.score - a.score || (b.case.decision_date || '').localeCompare(a.case.decision_date || ''));
+      const totalClaimFormula = subtotalRows.length > 0
+        ? `SUM(${subtotalRows.map((r) => `N${r}`).join(',')})`
+        : '0';
+      const totalPaidFormula = subtotalRows.length > 0
+        ? `SUM(${subtotalRows.map((r) => `O${r}`).join(',')})`
+        : '0';
 
-      render(scored, queryTerms);
+      aoa.push([
+        '전체 합계', '', '', '', '', '', '', '', '', '', '', '', '',
+        { f: totalClaimFormula },
+        { f: totalPaidFormula },
+      ]);
+
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      ws['!cols'] = [
+        { wch: 16 }, { wch: 12 }, { wch: 10 }, { wch: 20 }, { wch: 12 },
+        { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+        { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 }
+      ];
+
+      return ws;
     }
 
-    function init() {
-      const total = state.cases.length;
-      metaCountEl.textContent = `저장 판례: ${total}건`;
-      metaDateEl.textContent = `최종 정리일: ${(window.PRECEDENT_DATA && window.PRECEDENT_DATA.collected_at) || '-'}`;
-      search();
+    function convertAndDownload(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const wb = XLSX.read(data, { type: 'array', cellDates: true });
+          const first = wb.SheetNames[0];
+          if (!first) throw new Error('첫 번째 시트를 찾을 수 없습니다.');
+
+          const aoa = XLSX.utils.sheet_to_json(wb.Sheets[first], { header: 1, raw: true, defval: '' });
+          const records = toRecords(aoa);
+          if (records.length === 0) {
+            throw new Error('처리할 데이터가 없습니다. 입력 형식(열 순서/헤더)을 확인해 주세요.');
+          }
+
+          const outWb = XLSX.utils.book_new();
+          const outWs = recordsToSheet(records);
+          XLSX.utils.book_append_sheet(outWb, outWs, '출장정산');
+
+          const base = file.name.replace(/\.[^.]+$/, '');
+          const outName = `${base}_정산변환.xlsx`;
+          XLSX.writeFile(outWb, outName);
+
+          setLog(`완료: ${outName} (총 ${records.length}건)`, 'ok');
+        } catch (err) {
+          setLog(`오류: ${err.message}`, 'warn');
+        }
+      };
+      reader.onerror = () => setLog('파일 읽기 중 오류가 발생했습니다.', 'warn');
+      reader.readAsArrayBuffer(file);
     }
 
-    searchBtn.addEventListener('click', search);
-    lawFilterEl.addEventListener('change', search);
-    minYearEl.addEventListener('input', search);
-    queryEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) search();
+    function setFile(file) {
+      selectedFile = file || null;
+      convertBtn.disabled = !selectedFile;
+      if (selectedFile) {
+        setLog(`선택됨: ${selectedFile.name}`);
+      } else {
+        setLog('파일을 선택해 주세요.');
+      }
+    }
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+      setFile(file);
     });
 
-    resetBtn.addEventListener('click', () => {
-      queryEl.value = '';
-      lawFilterEl.value = 'all';
-      minYearEl.value = '2023';
-      search();
+    convertBtn.addEventListener('click', () => {
+      if (!selectedFile) return;
+      setLog('변환 중입니다...');
+      convertAndDownload(selectedFile);
     });
 
-    document.querySelectorAll('.sample-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        queryEl.value = btn.dataset.sample || '';
-        search();
-      });
+    clearBtn.addEventListener('click', () => {
+      fileInput.value = '';
+      setFile(null);
     });
 
-    init();
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('drag');
+    });
+
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('drag');
+      const file = e.dataTransfer.files && e.dataTransfer.files[0] ? e.dataTransfer.files[0] : null;
+      if (file) {
+        fileInput.files = e.dataTransfer.files;
+      }
+      setFile(file);
+    });
   </script>
 </body>
 </html>
