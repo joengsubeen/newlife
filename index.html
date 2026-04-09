@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>출장 정산 변환기</title>
+  <title>초과근무 매식비 정산 변환기</title>
   <style>
     :root {
-      --bg: #f3f6fb;
-      --card: #ffffff;
-      --line: #d8e0ec;
-      --text: #1f2633;
-      --muted: #5d687b;
-      --primary: #0a4ea8;
-      --primary-soft: #e9f1ff;
-      --ok: #0f7a42;
-      --warn: #915f00;
+      --bg: #f3f7fb;
+      --card: #fff;
+      --line: #d8e1ee;
+      --text: #1d2430;
+      --muted: #5d697d;
+      --primary: #0b4fa8;
+      --primary-soft: #e8f1ff;
+      --ok: #157a46;
+      --warn: #8a5b00;
     }
 
     * { box-sizing: border-box; }
@@ -23,20 +23,20 @@
       margin: 0;
       font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
       color: var(--text);
-      background: radial-gradient(circle at 0 0, #e8f0ff 0, var(--bg) 42%), var(--bg);
+      background: radial-gradient(circle at 0 0, #e8f1ff 0, var(--bg) 42%), var(--bg);
     }
 
     .wrap {
-      max-width: 920px;
-      margin: 32px auto;
-      padding: 0 14px 24px;
+      max-width: 960px;
+      margin: 30px auto;
+      padding: 0 14px 22px;
     }
 
     .card {
       background: var(--card);
       border: 1px solid var(--line);
       border-radius: 14px;
-      box-shadow: 0 8px 18px rgba(11, 46, 94, 0.06);
+      box-shadow: 0 8px 18px rgba(16, 52, 102, 0.06);
       padding: 16px;
       margin-bottom: 14px;
     }
@@ -53,13 +53,12 @@
     }
 
     .drop {
-      margin-top: 10px;
-      border: 2px dashed #b8c8e2;
-      background: #f9fbff;
+      margin-top: 12px;
+      border: 2px dashed #b7c7e2;
       border-radius: 12px;
       padding: 18px;
+      background: #f9fbff;
       text-align: center;
-      transition: all .15s ease;
     }
 
     .drop.drag {
@@ -74,8 +73,8 @@
 
     .actions {
       display: flex;
-      gap: 8px;
       flex-wrap: wrap;
+      gap: 8px;
       margin-top: 12px;
     }
 
@@ -95,19 +94,20 @@
     }
 
     button:disabled {
-      opacity: .45;
+      opacity: 0.45;
       cursor: not-allowed;
     }
 
     .log {
-      padding: 10px;
-      border-radius: 10px;
+      margin-top: 10px;
       border: 1px solid var(--line);
+      border-radius: 10px;
       background: #fcfdff;
-      font-size: 0.9rem;
-      color: var(--muted);
+      min-height: 44px;
+      padding: 10px;
       white-space: pre-wrap;
-      min-height: 42px;
+      color: var(--muted);
+      font-size: 0.9rem;
     }
 
     .ok { color: var(--ok); }
@@ -118,38 +118,38 @@
       padding-left: 18px;
       color: var(--muted);
       font-size: 0.9rem;
-    }
-
-    @media (max-width: 640px) {
-      h1 { font-size: 1.25rem; }
+      line-height: 1.4;
     }
   </style>
 </head>
 <body>
   <main class="wrap">
     <section class="card">
-      <h1>출장 정산 파일 자동 변환</h1>
-      <p class="sub">같은 형식의 출장이력 파일을 올리면, 바로 정산 양식 파일(.xlsx)로 다운로드합니다.</p>
+      <h1>초과근무 매식비 정산 변환기</h1>
+      <p class="sub">초과근무세부내역 파일을 올리면 성명별 매식비 정산 파일을 다운로드합니다.</p>
+
       <div class="drop" id="dropZone">
-        <div>여기에 엑셀 파일을 끌어놓거나 아래에서 선택하세요.</div>
+        <div>엑셀 파일(.xlsx/.xls)을 끌어놓거나 아래에서 선택하세요.</div>
         <input id="fileInput" type="file" accept=".xlsx,.xls" />
       </div>
+
       <div class="actions">
         <button id="convertBtn" disabled>정산 파일 만들기</button>
         <button id="clearBtn" class="secondary">초기화</button>
       </div>
+
       <div class="log" id="log">파일을 선택해 주세요.</div>
     </section>
 
     <section class="card">
-      <p class="sub">적용 규칙</p>
+      <p class="sub">적용 기준</p>
       <ul class="rules">
-        <li>출장일수: 종료일 - 시작일 + 1</li>
-        <li>출발지: 세종 / 도착지: 출장지</li>
-        <li>공무용차량여부가 "이용"이면 교통수단은 "관용차량", 일비단가 12,500</li>
-        <li>그 외 일비단가 25,000, 식비단가 25,000</li>
-        <li>청구액 = 교통요금 + 식비금액 + 일비금액 + 숙박비</li>
-        <li>출장자별 소계, 전체 합계 자동 생성 (청구액/지급액)</li>
+        <li>공휴일 판정: 주말 또는 공휴일 API 기준 (API 실패 시 주말 기준)</li>
+        <li>제외시간: "HH:MM ~ HH:MM" 형식에서 뒤 시간 - 앞 시간</li>
+        <li>근무일: (실제퇴근-실제출근-제외시간) 10시간 이상일 때 지급</li>
+        <li>공휴일: (실제퇴근-실제출근-제외시간) 2시간 이상일 때 지급</li>
+        <li>출장이 "근무지외출장"으로 시작하면 지급 제외</li>
+        <li>성명별로 지급가능 일자를 1개 셀에 묶어 출력, 단가 9,000원</li>
       </ul>
     </section>
   </main>
@@ -159,32 +159,24 @@
     const fileInput = document.getElementById('fileInput');
     const convertBtn = document.getElementById('convertBtn');
     const clearBtn = document.getElementById('clearBtn');
-    const logEl = document.getElementById('log');
     const dropZone = document.getElementById('dropZone');
+    const logEl = document.getElementById('log');
 
     let selectedFile = null;
 
-    function setLog(message, mode = 'normal') {
-      logEl.textContent = message;
+    function setLog(msg, mode = 'normal') {
+      logEl.textContent = msg;
       logEl.classList.remove('ok', 'warn');
       if (mode === 'ok') logEl.classList.add('ok');
       if (mode === 'warn') logEl.classList.add('warn');
     }
 
-    function pad(n) {
-      return String(n).padStart(2, '0');
-    }
-
-    function formatDate(d) {
-      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    }
+    function pad(n) { return String(n).padStart(2, '0'); }
+    function ymd(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
 
     function parseDate(v) {
       if (v == null || v === '') return null;
-
-      if (v instanceof Date && !Number.isNaN(v.getTime())) {
-        return new Date(v.getFullYear(), v.getMonth(), v.getDate());
-      }
+      if (v instanceof Date && !Number.isNaN(v.getTime())) return new Date(v.getFullYear(), v.getMonth(), v.getDate());
 
       if (typeof v === 'number') {
         const parsed = XLSX.SSF.parse_date_code(v);
@@ -195,237 +187,239 @@
       const text = String(v).trim();
       const compact = text.replace(/[^0-9]/g, '');
       if (/^\d{8}$/.test(compact)) {
-        const y = Number(compact.slice(0, 4));
-        const m = Number(compact.slice(4, 6));
-        const d = Number(compact.slice(6, 8));
-        const dt = new Date(y, m - 1, d);
-        if (!Number.isNaN(dt.getTime())) return dt;
+        const d = new Date(Number(compact.slice(0, 4)), Number(compact.slice(4, 6)) - 1, Number(compact.slice(6, 8)));
+        if (!Number.isNaN(d.getTime())) return d;
       }
 
-      const normalized = text.replace(/\./g, '-').replace(/\//g, '-');
-      const dt = new Date(normalized);
-      if (!Number.isNaN(dt.getTime())) {
-        return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
-      }
-
+      const d = new Date(text.replace(/\./g, '-').replace(/\//g, '-'));
+      if (!Number.isNaN(d.getTime())) return new Date(d.getFullYear(), d.getMonth(), d.getDate());
       return null;
     }
 
-    function daysInclusive(start, end) {
-      return Math.max(1, Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1);
+    function parseClockMinutes(v) {
+      if (v == null || v === '') return null;
+
+      if (v instanceof Date && !Number.isNaN(v.getTime())) {
+        return v.getHours() * 60 + v.getMinutes();
+      }
+
+      if (typeof v === 'number') {
+        const dayFraction = v % 1;
+        const total = Math.round(dayFraction * 24 * 60);
+        return ((total % 1440) + 1440) % 1440;
+      }
+
+      const text = String(v).trim();
+      const m = text.match(/(\d{1,2})\s*:\s*(\d{2})/);
+      if (!m) return null;
+      const hh = Number(m[1]);
+      const mm = Number(m[2]);
+      if (Number.isNaN(hh) || Number.isNaN(mm)) return null;
+      if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null;
+      return hh * 60 + mm;
     }
 
-    function findHeaderRow(aoa, required) {
-      for (let r = 0; r < Math.min(aoa.length, 10); r += 1) {
+    function diffMinutes(startMin, endMin) {
+      if (startMin == null || endMin == null) return null;
+      let d = endMin - startMin;
+      if (d < 0) d += 1440;
+      return d;
+    }
+
+    function parseExcludedMinutes(v) {
+      if (v == null || v === '') return 0;
+      const text = String(v).trim();
+      const m = text.match(/(\d{1,2}:\d{2})\s*~\s*(\d{1,2}:\d{2})/);
+      if (!m) return 0;
+      const s = parseClockMinutes(m[1]);
+      const e = parseClockMinutes(m[2]);
+      const d = diffMinutes(s, e);
+      return d == null ? 0 : d;
+    }
+
+    function findHeaderRow(aoa, headers) {
+      for (let r = 0; r < Math.min(aoa.length, 12); r += 1) {
         const row = (aoa[r] || []).map((x) => String(x || '').trim());
-        const ok = required.every((h) => row.includes(h));
-        if (ok) return r;
+        if (headers.every((h) => row.includes(h))) return r;
       }
       return -1;
     }
 
     function buildHeaderMap(row) {
       const map = new Map();
-      (row || []).forEach((cell, idx) => {
-        const key = String(cell || '').trim();
-        if (key) map.set(key, idx);
+      (row || []).forEach((c, i) => {
+        const key = String(c || '').trim();
+        if (key) map.set(key, i);
       });
       return map;
     }
 
-    function toRecords(aoa) {
-      const required = ['시작일', '종료일', '출장지', '출장자', '공무용차량여부'];
-      const headerRowIndex = findHeaderRow(aoa, required);
+    async function fetchHolidaySet(years) {
+      const set = new Set();
+      let apiOk = true;
 
-      let dataStart = 0;
-      let idxStart = 0;
-      let idxEnd = 1;
-      let idxDest = 2;
-      let idxTraveler = 3;
-      let idxVehicle = 6;
-
-      if (headerRowIndex >= 0) {
-        const map = buildHeaderMap(aoa[headerRowIndex]);
-        idxStart = map.get('시작일');
-        idxEnd = map.get('종료일');
-        idxDest = map.get('출장지');
-        idxTraveler = map.get('출장자');
-        idxVehicle = map.get('공무용차량여부');
-        dataStart = headerRowIndex + 1;
-      }
-
-      const records = [];
-
-      for (let r = dataStart; r < aoa.length; r += 1) {
-        const row = aoa[r] || [];
-        const traveler = String(row[idxTraveler] || '').trim();
-        if (!traveler) continue;
-
-        const startDate = parseDate(row[idxStart]);
-        let endDate = parseDate(row[idxEnd]);
-        if (!startDate) continue;
-        if (!endDate) endDate = startDate;
-
-        let s = startDate;
-        let e = endDate;
-        if (e < s) {
-          const t = s;
-          s = e;
-          e = t;
+      await Promise.all([...years].map(async (year) => {
+        try {
+          const res = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${year}/KR`);
+          if (!res.ok) throw new Error('holiday api fail');
+          const arr = await res.json();
+          arr.forEach((x) => {
+            if (x && x.date) set.add(String(x.date));
+          });
+        } catch (_e) {
+          apiOk = false;
         }
+      }));
 
-        const tripDays = daysInclusive(s, e);
-        const vehicle = String(row[idxVehicle] || '').trim();
-        const isGovCar = vehicle === '이용';
-        const mealUnit = 25000;
-        const dailyUnit = isGovCar ? 12500 : 25000;
+      return { set, apiOk };
+    }
 
-        records.push({
-          traveler,
-          tripDate: s,
-          origin: '세종',
-          destination: String(row[idxDest] || '').trim(),
-          transport: isGovCar ? '관용차량' : '',
-          transportFare: 0,
-          tripDays,
-          mealUnit,
-          mealAmount: mealUnit * tripDays,
-          dailyUnit,
-          dailyAmount: dailyUnit * tripDays,
-          lodgingNights: 0,
-          lodgingCost: 0,
-        });
+    function isHoliday(date, holidaySet) {
+      const day = date.getDay();
+      if (day === 0 || day === 6) return true;
+      return holidaySet.has(ymd(date));
+    }
+
+    function uniqueSortedDates(dates) {
+      const uniq = [...new Set(dates)];
+      uniq.sort();
+      return uniq;
+    }
+
+    async function convert(file) {
+      const ab = await file.arrayBuffer();
+      const wb = XLSX.read(ab, { type: 'array', cellDates: true });
+      const first = wb.SheetNames[0];
+      if (!first) throw new Error('첫 번째 시트를 찾을 수 없습니다.');
+
+      const aoa = XLSX.utils.sheet_to_json(wb.Sheets[first], { header: 1, raw: true, defval: '' });
+
+      const needed = [
+        '성명', '직급', '일자', '요일', '실제출근시간', '실제퇴근시간', '인정된출근시간', '인정된퇴근시간',
+        '제외(개인용무)시간', '처리할일(출근)', '처리한일(퇴근)', '처리한일(실적신청)', '실적시간', '이월시간',
+        '인정시간', '휴일일수', '야간시간', '현업여부', '실적인정여부', '근무형태', '근무시간', '근무상황', '출장', '당직'
+      ];
+
+      const headerRow = findHeaderRow(aoa, needed);
+      if (headerRow < 0) throw new Error('필수 헤더를 찾지 못했습니다. 입력 파일 형식을 확인해 주세요.');
+
+      const map = buildHeaderMap(aoa[headerRow]);
+      const idxName = map.get('성명');
+      const idxDate = map.get('일자');
+      const idxIn = map.get('실제출근시간');
+      const idxOut = map.get('실제퇴근시간');
+      const idxExcluded = map.get('제외(개인용무)시간');
+      const idxTrip = map.get('출장');
+
+      const rows = [];
+      const years = new Set();
+
+      for (let r = headerRow + 1; r < aoa.length; r += 1) {
+        const row = aoa[r] || [];
+        const name = String(row[idxName] || '').trim();
+        if (!name) continue;
+
+        const date = parseDate(row[idxDate]);
+        if (!date) continue;
+        years.add(date.getFullYear());
+
+        const inMin = parseClockMinutes(row[idxIn]);
+        const outMin = parseClockMinutes(row[idxOut]);
+        const workMin = diffMinutes(inMin, outMin);
+        if (workMin == null) continue;
+
+        const excludedMin = parseExcludedMinutes(row[idxExcluded]);
+        const netMin = Math.max(0, workMin - excludedMin);
+
+        const tripText = String(row[idxTrip] || '').trim();
+        const blockedByTrip = tripText.startsWith('근무지외출장');
+
+        rows.push({ name, date, netMin, blockedByTrip });
       }
 
-      records.sort((a, b) => {
-        if (a.traveler !== b.traveler) return a.traveler.localeCompare(b.traveler, 'ko');
-        return a.tripDate - b.tripDate;
+      const { set: holidaySet, apiOk } = await fetchHolidaySet(years);
+
+      const byName = new Map();
+
+      rows.forEach((x) => {
+        const holiday = isHoliday(x.date, holidaySet);
+        const threshold = holiday ? 120 : 600;
+        const eligible = !x.blockedByTrip && x.netMin >= threshold;
+        if (!eligible) return;
+
+        const key = x.name;
+        if (!byName.has(key)) byName.set(key, []);
+        byName.get(key).push(ymd(x.date));
       });
 
-      return records;
-    }
+      const names = [...byName.keys()].sort((a, b) => a.localeCompare(b, 'ko'));
+      const out = [[ '성명', '초과근무 일자', '초과근무 일수', '매식비 단가', '매식비 금액' ]];
 
-    function recordsToSheet(records) {
-      const headers = [
-        '출장자', '출장일', '출발지', '도착지', '교통수단', '교통요금', '출장일수',
-        '식비단가', '식비금액', '일비단가', '일비금액', '숙박일수', '숙박비', '청구액', '지급액'
-      ];
-
-      const aoa = [headers];
-      const subtotalRows = [];
-
-      let i = 0;
-      while (i < records.length) {
-        const traveler = records[i].traveler;
-        const startRowNum = aoa.length + 1;
-
-        while (i < records.length && records[i].traveler === traveler) {
-          const item = records[i];
-          const rowNum = aoa.length + 1;
-          aoa.push([
-            item.traveler,
-            formatDate(item.tripDate),
-            item.origin,
-            item.destination,
-            item.transport,
-            item.transportFare,
-            item.tripDays,
-            item.mealUnit,
-            item.mealAmount,
-            item.dailyUnit,
-            item.dailyAmount,
-            item.lodgingNights,
-            item.lodgingCost,
-            { f: `F${rowNum}+I${rowNum}+K${rowNum}+M${rowNum}` },
-            { f: `N${rowNum}` },
-          ]);
-          i += 1;
-        }
-
-        const endRowNum = aoa.length;
-        const subRowNum = aoa.length + 1;
-        aoa.push([
-          `${traveler} 소계`, '', '', '', '', '', '', '', '', '', '', '', '',
-          { f: `SUM(N${startRowNum}:N${endRowNum})` },
-          { f: `SUM(O${startRowNum}:O${endRowNum})` },
+      names.forEach((name) => {
+        const days = uniqueSortedDates(byName.get(name));
+        const count = days.length;
+        const unit = 9000;
+        out.push([
+          name,
+          days.join('\n'),
+          count,
+          unit,
+          count * unit,
         ]);
-        subtotalRows.push(subRowNum);
-      }
+      });
 
-      const totalClaimFormula = subtotalRows.length > 0
-        ? `SUM(${subtotalRows.map((r) => `N${r}`).join(',')})`
-        : '0';
-      const totalPaidFormula = subtotalRows.length > 0
-        ? `SUM(${subtotalRows.map((r) => `O${r}`).join(',')})`
-        : '0';
-
-      aoa.push([
-        '전체 합계', '', '', '', '', '', '', '', '', '', '', '', '',
-        { f: totalClaimFormula },
-        { f: totalPaidFormula },
-      ]);
-
-      const ws = XLSX.utils.aoa_to_sheet(aoa);
-      ws['!cols'] = [
-        { wch: 16 }, { wch: 12 }, { wch: 10 }, { wch: 20 }, { wch: 12 },
-        { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
-        { wch: 12 }, { wch: 10 }, { wch: 12 }, { wch: 12 }, { wch: 12 }
+      const outWb = XLSX.utils.book_new();
+      const outWs = XLSX.utils.aoa_to_sheet(out);
+      outWs['!cols'] = [
+        { wch: 14 }, { wch: 58 }, { wch: 14 }, { wch: 12 }, { wch: 12 }
       ];
 
-      return ws;
-    }
+      // Make multi-date cells easier to read in Excel by setting row height to line count.
+      const rowMeta = [];
+      rowMeta[0] = { hpt: 22 };
+      for (let r = 1; r < out.length; r += 1) {
+        const cellValue = String(out[r][1] || '');
+        const lines = cellValue ? cellValue.split('\n').length : 1;
+        rowMeta[r] = { hpt: Math.max(18, lines * 14) };
 
-    function convertAndDownload(file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = new Uint8Array(e.target.result);
-          const wb = XLSX.read(data, { type: 'array', cellDates: true });
-          const first = wb.SheetNames[0];
-          if (!first) throw new Error('첫 번째 시트를 찾을 수 없습니다.');
-
-          const aoa = XLSX.utils.sheet_to_json(wb.Sheets[first], { header: 1, raw: true, defval: '' });
-          const records = toRecords(aoa);
-          if (records.length === 0) {
-            throw new Error('처리할 데이터가 없습니다. 입력 형식(열 순서/헤더)을 확인해 주세요.');
-          }
-
-          const outWb = XLSX.utils.book_new();
-          const outWs = recordsToSheet(records);
-          XLSX.utils.book_append_sheet(outWb, outWs, '출장정산');
-
-          const base = file.name.replace(/\.[^.]+$/, '');
-          const outName = `${base}_정산변환.xlsx`;
-          XLSX.writeFile(outWb, outName);
-
-          setLog(`완료: ${outName} (총 ${records.length}건)`, 'ok');
-        } catch (err) {
-          setLog(`오류: ${err.message}`, 'warn');
+        const addr = `B${r + 1}`;
+        if (outWs[addr]) {
+          outWs[addr].s = {
+            alignment: { wrapText: true, vertical: 'top' },
+          };
         }
-      };
-      reader.onerror = () => setLog('파일 읽기 중 오류가 발생했습니다.', 'warn');
-      reader.readAsArrayBuffer(file);
+      }
+      outWs['!rows'] = rowMeta;
+      XLSX.utils.book_append_sheet(outWb, outWs, '매식비정산');
+
+      const base = file.name.replace(/\.[^.]+$/, '');
+      const outName = `${base}_매식비정산변환.xlsx`;
+      XLSX.writeFile(outWb, outName);
+
+      const apiMsg = apiOk ? '' : '\n공휴일 API 조회 실패로 주말 기준만 적용되었습니다.';
+      return { outName, count: names.length, apiMsg };
     }
 
     function setFile(file) {
       selectedFile = file || null;
       convertBtn.disabled = !selectedFile;
-      if (selectedFile) {
-        setLog(`선택됨: ${selectedFile.name}`);
-      } else {
-        setLog('파일을 선택해 주세요.');
-      }
+      setLog(selectedFile ? `선택됨: ${selectedFile.name}` : '파일을 선택해 주세요.');
     }
 
     fileInput.addEventListener('change', (e) => {
-      const file = e.target.files && e.target.files[0] ? e.target.files[0] : null;
-      setFile(file);
+      const f = e.target.files && e.target.files[0] ? e.target.files[0] : null;
+      setFile(f);
     });
 
-    convertBtn.addEventListener('click', () => {
+    convertBtn.addEventListener('click', async () => {
       if (!selectedFile) return;
       setLog('변환 중입니다...');
-      convertAndDownload(selectedFile);
+      try {
+        const result = await convert(selectedFile);
+        setLog(`완료: ${result.outName}\n성명 ${result.count}명 처리됨${result.apiMsg}`, 'ok');
+      } catch (err) {
+        setLog(`오류: ${err.message}`, 'warn');
+      }
     });
 
     clearBtn.addEventListener('click', () => {
@@ -438,16 +432,19 @@
       dropZone.classList.add('drag');
     });
 
-    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('drag');
+    });
 
     dropZone.addEventListener('drop', (e) => {
       e.preventDefault();
       dropZone.classList.remove('drag');
-      const file = e.dataTransfer.files && e.dataTransfer.files[0] ? e.dataTransfer.files[0] : null;
-      if (file) {
+      const f = e.dataTransfer.files && e.dataTransfer.files[0] ? e.dataTransfer.files[0] : null;
+      if (!f) return;
+      if (fileInput && e.dataTransfer.files) {
         fileInput.files = e.dataTransfer.files;
       }
-      setFile(file);
+      setFile(f);
     });
   </script>
 </body>
