@@ -1,0 +1,405 @@
+﻿<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>산안법·중처법 유사 판례 검색기</title>
+  <style>
+    :root {
+      --bg: #f2f5f9;
+      --card: #ffffff;
+      --line: #d6deea;
+      --text: #1d2430;
+      --muted: #5b6679;
+      --primary: #0b4da2;
+      --accent: #e9f2ff;
+      --ok: #1f7a48;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans KR", "Malgun Gothic", sans-serif;
+      color: var(--text);
+      background: radial-gradient(circle at 0 0, #e5efff 0, var(--bg) 38%), var(--bg);
+    }
+
+    .wrap {
+      max-width: 1100px;
+      margin: 28px auto;
+      padding: 0 14px 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 8px 18px rgba(13, 43, 91, 0.06);
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.5rem;
+    }
+
+    .sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 220px 220px;
+      gap: 10px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    textarea, input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.95rem;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 94px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 1px solid var(--primary);
+      background: var(--primary);
+      color: #fff;
+      border-radius: 10px;
+      padding: 9px 13px;
+      cursor: pointer;
+      font-size: 0.92rem;
+    }
+
+    button.ghost {
+      background: #fff;
+      color: var(--primary);
+    }
+
+    .samples {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .sample-btn {
+      border: 1px solid var(--line);
+      background: #f7faff;
+      color: #2c4e87;
+      font-size: 0.86rem;
+      padding: 7px 10px;
+      border-radius: 999px;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.88rem;
+      color: var(--muted);
+    }
+
+    .result {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 10px;
+      background: #fcfdff;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 6px;
+      align-items: center;
+    }
+
+    .title {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .score {
+      font-size: 0.86rem;
+      background: var(--accent);
+      color: var(--primary);
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #cce0ff;
+      font-weight: 700;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 7px;
+    }
+
+    .chip {
+      font-size: 0.8rem;
+      border-radius: 999px;
+      padding: 3px 8px;
+      border: 1px solid var(--line);
+      color: #45536b;
+      background: #f8fafd;
+    }
+
+    .matched {
+      border-color: #9fd3b2;
+      color: var(--ok);
+      background: #edfbf2;
+    }
+
+    .small {
+      font-size: 0.86rem;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    a:hover { text-decoration: underline; }
+
+    @media (max-width: 920px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card">
+      <h1>산업안전보건법·중대재해처벌법 유사 판례 검색기</h1>
+      <p class="sub">사실관계/쟁점을 입력하면 저장된 판례와 유사도를 계산해 보여줍니다.</p>
+    </section>
+
+    <section class="card">
+      <div class="grid">
+        <div>
+          <label for="query">내 사건 설명</label>
+          <textarea id="query" placeholder="예: 하청 근로자가 도급인 사업장에서 설비 청소 중 추락 사망. 안전난간, 작업절차서, 위험성평가 미흡."></textarea>
+        </div>
+        <div>
+          <label for="lawFilter">법령 필터</label>
+          <select id="lawFilter">
+            <option value="all">전체</option>
+            <option value="both">중처법+산안법</option>
+            <option value="sapa">중대재해처벌법 중심</option>
+            <option value="osha">산업안전보건법 중심</option>
+          </select>
+        </div>
+        <div>
+          <label for="minYear">최소 선고연도</label>
+          <input id="minYear" type="number" value="2023" min="2000" max="2030" step="1" />
+        </div>
+      </div>
+      <div class="actions">
+        <button id="searchBtn" type="button">유사 판례 검색</button>
+        <button id="resetBtn" class="ghost" type="button">초기화</button>
+      </div>
+      <div class="samples">
+        <button class="sample-btn" data-sample="도급인 사업장 하청근로자 작업 중 사망, 안전보건조치 미흡">예시: 도급인 의무</button>
+        <button class="sample-btn" data-sample="상시근로자 50명 미만 사업장인지가 쟁점인 중대재해 사건">예시: 50명 미만</button>
+        <button class="sample-btn" data-sample="폭발 위험 물질 취급 공정에서 안전절차 위반으로 사망사고">예시: 폭발사고</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="meta">
+        <div id="metaCount">저장 판례: 0건</div>
+        <div id="metaDate">최종 정리일: -</div>
+      </div>
+      <div id="results"></div>
+    </section>
+  </div>
+
+  <script src="data/cases-data.js"></script>
+  <script>
+    const state = {
+      cases: (window.PRECEDENT_DATA && window.PRECEDENT_DATA.cases) || []
+    };
+
+    const queryEl = document.getElementById('query');
+    const lawFilterEl = document.getElementById('lawFilter');
+    const minYearEl = document.getElementById('minYear');
+    const searchBtn = document.getElementById('searchBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const resultsEl = document.getElementById('results');
+    const metaCountEl = document.getElementById('metaCount');
+    const metaDateEl = document.getElementById('metaDate');
+
+    function normalize(text) {
+      return (text || '')
+        .toLowerCase()
+        .replace(/[^0-9a-zA-Z가-힣\s]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function tokenize(text) {
+      const terms = normalize(text).split(' ').filter(t => t.length >= 2);
+      return [...new Set(terms)];
+    }
+
+    function textContains(fieldText, term) {
+      return normalize(fieldText).includes(term);
+    }
+
+    function scoreCase(c, queryTerms) {
+      let score = 0;
+      const matched = new Set();
+      const title = c.title || '';
+      const issue = c.issue || '';
+      const holding = c.holding_summary || '';
+      const laws = (c.laws || []).join(' ');
+      const keywords = (c.keywords || []).join(' ');
+
+      queryTerms.forEach(term => {
+        let added = 0;
+
+        if (textContains(title, term)) added += 4;
+        if (textContains(keywords, term)) added += 3;
+        if (textContains(issue, term)) added += 2;
+        if (textContains(holding, term)) added += 2;
+        if (textContains(laws, term)) added += 2;
+
+        if (added > 0) {
+          matched.add(term);
+          score += added;
+        }
+      });
+
+      const normalized = queryTerms.length ? Math.round((score / (queryTerms.length * 7)) * 100) : 0;
+      return { score: normalized, matched: [...matched] };
+    }
+
+    function byFilter(c) {
+      const filter = lawFilterEl.value;
+      const minYear = Number(minYearEl.value) || 2000;
+      const year = Number((c.decision_date || '').slice(0, 4)) || 0;
+
+      if (year < minYear) return false;
+      if (filter === 'all') return true;
+      if (filter === 'both') return c.law_category === 'both';
+      return c.law_category === filter || c.law_category === 'both';
+    }
+
+    function render(results, queryTerms) {
+      if (!results.length) {
+        resultsEl.innerHTML = '<div class="small">조건에 맞는 판례가 없습니다. 연도를 낮추거나 검색어를 넓혀보세요.</div>';
+        return;
+      }
+
+      resultsEl.innerHTML = results.map(r => {
+        const c = r.case;
+        const chips = (c.keywords || []).map(k => {
+          const hit = queryTerms.some(t => normalize(k).includes(t));
+          return `<span class="chip ${hit ? 'matched' : ''}">${k}</span>`;
+        }).join('');
+
+        const laws = (c.laws || []).join(', ');
+
+        return `
+          <article class="result">
+            <div class="row">
+              <div class="title">${c.title}</div>
+              <div class="score">유사도 ${r.score}%</div>
+            </div>
+            <div class="small">${c.court} | ${c.decision_date} | ${c.case_number} | ${laws}</div>
+            <div class="small"><strong>쟁점:</strong> ${c.issue}</div>
+            <div class="small"><strong>요지:</strong> ${c.holding_summary}</div>
+            <div class="chips">${chips}</div>
+            <div class="small"><a href="${c.source_url}" target="_blank" rel="noopener noreferrer">원문/공식 출처</a></div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function search() {
+      const queryTerms = tokenize(queryEl.value);
+      const filtered = state.cases.filter(byFilter);
+
+      if (!queryTerms.length) {
+        const plain = filtered
+          .map(c => ({ case: c, score: 0, matched: [] }))
+          .sort((a, b) => (b.case.decision_date || '').localeCompare(a.case.decision_date || ''));
+        render(plain, []);
+        return;
+      }
+
+      const scored = filtered
+        .map(c => {
+          const s = scoreCase(c, queryTerms);
+          return { case: c, score: s.score, matched: s.matched };
+        })
+        .filter(x => x.score > 0)
+        .sort((a, b) => b.score - a.score || (b.case.decision_date || '').localeCompare(a.case.decision_date || ''));
+
+      render(scored, queryTerms);
+    }
+
+    function init() {
+      const total = state.cases.length;
+      metaCountEl.textContent = `저장 판례: ${total}건`;
+      metaDateEl.textContent = `최종 정리일: ${(window.PRECEDENT_DATA && window.PRECEDENT_DATA.collected_at) || '-'}`;
+      search();
+    }
+
+    searchBtn.addEventListener('click', search);
+    lawFilterEl.addEventListener('change', search);
+    minYearEl.addEventListener('input', search);
+    queryEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) search();
+    });
+
+    resetBtn.addEventListener('click', () => {
+      queryEl.value = '';
+      lawFilterEl.value = 'all';
+      minYearEl.value = '2023';
+      search();
+    });
+
+    document.querySelectorAll('.sample-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        queryEl.value = btn.dataset.sample || '';
+        search();
+      });
+    });
+
+    init();
+  </script>
+</body>
+</html>
