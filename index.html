@@ -271,7 +271,32 @@
         }
       }));
 
+      // Nager API may miss KR substitute holidays in some years.
+      // Supplement fixed-date substitute holidays by domestic rule.
+      years.forEach((year) => {
+        addSubstituteForFixedHoliday(year, 3, 1, set);   // 3·1절
+        addSubstituteForFixedHoliday(year, 5, 5, set);   // 어린이날
+        addSubstituteForFixedHoliday(year, 8, 15, set);  // 광복절
+        addSubstituteForFixedHoliday(year, 10, 3, set);  // 개천절
+        addSubstituteForFixedHoliday(year, 10, 9, set);  // 한글날
+        addSubstituteForFixedHoliday(year, 12, 25, set); // 성탄절
+      });
+
       return { set, apiOk };
+    }
+
+    function addSubstituteForFixedHoliday(year, month, day, holidaySet) {
+      const holiday = new Date(year, month - 1, day);
+      const dow = holiday.getDay();
+      if (dow !== 0 && dow !== 6) return;
+
+      // Substitute holiday: first following weekday that is not already a holiday.
+      const sub = new Date(holiday);
+      do {
+        sub.setDate(sub.getDate() + 1);
+      } while (sub.getDay() === 0 || sub.getDay() === 6 || holidaySet.has(ymd(sub)));
+
+      holidaySet.add(ymd(sub));
     }
 
     function isHoliday(date, holidaySet) {
